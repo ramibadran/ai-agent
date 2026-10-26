@@ -14,11 +14,12 @@ class KnowledgeContentSeeder extends Seeder
      */
     public function run(): void
     {
-        $administrator = User::query()->firstOrCreate(
+        $administrator = User::query()->updateOrCreate(
             ['email' => 'admin@example.test'],
             [
                 'name' => 'Demo Administrator',
                 'password' => Hash::make('password'),
+                'is_admin' => true,
             ],
         );
 
@@ -32,7 +33,7 @@ class KnowledgeContentSeeder extends Seeder
                     'source_url' => $content['source_url'],
                     'status' => 'published',
                     'version' => 1,
-                    'content_checksum' => hash('sha256', $content['body']),
+                    'content_checksum' => hash('sha256', $content['title']."\n".$content['body']),
                     'metadata' => $content['metadata'],
                     'published_at' => now(),
                     'indexed_at' => null,
