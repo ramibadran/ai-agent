@@ -16,6 +16,8 @@ class KnowledgeContentInfolist
                 TextEntry::make('title'),
                 TextEntry::make('slug'),
                 TextEntry::make('body')
+                    ->label('Document body')
+                    ->markdown()
                     ->columnSpanFull(),
                 TextEntry::make('source_url')
                     ->placeholder('-'),

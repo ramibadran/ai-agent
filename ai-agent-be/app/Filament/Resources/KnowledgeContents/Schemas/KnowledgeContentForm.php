@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\KnowledgeContents\Schemas;
 
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -14,9 +14,11 @@ class KnowledgeContentForm
             ->components([
                 TextInput::make('title')
                     ->required(),
-                Textarea::make('body')
+                MarkdownEditor::make('body')
+                    ->label('Document body')
                     ->required()
-                    ->rows(16)
+                    ->minHeight('28rem')
+                    ->maxHeight('48rem')
                     ->maxLength(100000)
                     ->columnSpanFull(),
                 TextInput::make('source_url')

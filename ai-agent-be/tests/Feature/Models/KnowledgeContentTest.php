@@ -38,10 +38,10 @@ class KnowledgeContentTest extends TestCase
         $this->seed(KnowledgeContentSeeder::class);
         $this->seed(KnowledgeContentSeeder::class);
 
-        $this->assertSame(6, KnowledgeContent::query()->count());
+        $this->assertSame(1, KnowledgeContent::query()->count());
         $this->assertDatabaseHas('users', ['email' => 'admin@example.test']);
         $this->assertDatabaseHas('knowledge_contents', [
-            'slug' => 'refund-and-returns-policy',
+            'slug' => 'northstar-nexus-fictional-company-profile',
             'status' => 'published',
         ]);
     }

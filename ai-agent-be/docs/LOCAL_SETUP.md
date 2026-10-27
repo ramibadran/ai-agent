@@ -71,6 +71,18 @@ php artisan migrate
 php artisan db:seed
 ```
 
+Seeded content is stored in MySQL first. Synchronize every published article to Qdrant after seeding:
+
+```bash
+php artisan knowledge:reindex
+```
+
+To synchronize one article only, use its database ID:
+
+```bash
+php artisan knowledge:reindex --content=1
+```
+
 The demo admin account is:
 
 ```text

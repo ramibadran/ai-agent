@@ -79,6 +79,19 @@ class KnowledgeContentService
         $content->delete();
     }
 
+    public function reindex(KnowledgeContent $content): KnowledgeContent
+    {
+        $indexRun = DB::transaction(function () use ($content): ContentIndexRun {
+            $content->update(['indexed_at' => null]);
+
+            return $this->createPendingIndexRun($content);
+        });
+
+        $this->index($indexRun);
+
+        return $content->fresh() ?? $content;
+    }
+
     private function createPendingIndexRun(KnowledgeContent $content): ContentIndexRun
     {
         $indexRun = ContentIndexRun::query()->create([
