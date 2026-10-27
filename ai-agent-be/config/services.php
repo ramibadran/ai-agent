@@ -42,6 +42,7 @@ return [
         'vector_size' => (int) env('QDRANT_VECTOR_SIZE', 1536),
         'chunk_size' => (int) env('QDRANT_CHUNK_SIZE', 800),
         'chunk_overlap' => (int) env('QDRANT_CHUNK_OVERLAP', 200),
+        'retrieval_limit' => (int) env('QDRANT_RETRIEVAL_LIMIT', 5),
     ],
 
     'slack' => [

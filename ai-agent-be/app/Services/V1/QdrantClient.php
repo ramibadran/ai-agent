@@ -63,6 +63,42 @@ class QdrantClient
         $response->throw();
     }
 
+    /**
+     * Search published knowledge chunks by vector similarity.
+     *
+     * @param  array<int, float>  $vector
+     * @return list<array{id: string|int, score: float, payload: array<string, mixed>}>
+     */
+    public function search(array $vector, int $limit): array
+    {
+        if (count($vector) !== (int) config('services.qdrant.vector_size')) {
+            throw new \InvalidArgumentException('The search vector has an invalid dimension.');
+        }
+
+        $response = $this->client()->post($this->collectionPath().'/points/query', [
+            'query' => $vector,
+            'filter' => [
+                'must' => [[
+                    'key' => 'status',
+                    'match' => ['value' => 'published'],
+                ]],
+            ],
+            'limit' => $limit,
+            'with_payload' => true,
+            'with_vector' => false,
+        ])->throw();
+
+        return collect($response->json('result.points', []))
+            ->filter(fn (mixed $point): bool => is_array($point) && isset($point['id'], $point['score']) && is_array($point['payload'] ?? null))
+            ->map(fn (array $point): array => [
+                'id' => $point['id'],
+                'score' => (float) $point['score'],
+                'payload' => $point['payload'],
+            ])
+            ->values()
+            ->all();
+    }
+
     private function ensureCollection(): void
     {
         $response = $this->client()->get($this->collectionPath());
