@@ -11,7 +11,7 @@ Administrators add and publish knowledge-base content. Laravel synchronizes that
 - Laravel API and admin workflows for knowledge-base content.
 - MySQL as the source of truth for content, conversations, and AI-run data.
 - Qdrant for embedding storage and similarity search.
-- Redis and Laravel queues for reliable background indexing.
+- Redis and Laravel queues for future asynchronous processing.
 - Laravel Reverb for private, real-time chat events.
 - Custom observability for tokens, estimated cost, latency, retrieved sources, and errors.
 - A separate React/Vite chat client in the `ai-agent-fe` repository.
@@ -31,6 +31,8 @@ Laravel backend
 ## Documentation
 
 The full product and technical design is in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md). It explains the data flow, chunking strategy, Qdrant model, RAG process, security rules, observability plan, and delivery phases.
+
+For a complete macOS local setup guide covering MySQL, OpenAI, Qdrant, Filament, verification, and troubleshooting, read [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md).
 
 ## Local setup
 
@@ -69,7 +71,7 @@ The full product and technical design is in [docs/PROJECT_SPEC.md](docs/PROJECT_
 ## Development principles
 
 - MySQL is canonical; Qdrant is a derived index.
-- Indexing is asynchronous, retryable, and idempotent.
+- MVP indexing is direct and idempotent; it will move to asynchronous processing after the MVP.
 - The LLM receives only controlled tools; it never has direct infrastructure access.
 - Grounded answers cite their retrieved sources.
 - Secrets, private prompts, and real business content never enter the public repository.
