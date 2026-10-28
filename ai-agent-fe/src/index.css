@@ -1,1 +1,2 @@
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#f7f8fb;color:#172033}button,input{font:inherit}button{cursor:pointer}
+.app-error{min-height:100vh;display:grid;place-content:center;gap:12px;text-align:center;padding:24px}.app-error p{color:#bd2b2b}.app-error button{padding:10px 14px;border:0;border-radius:8px;background:#3766e8;color:#fff}
