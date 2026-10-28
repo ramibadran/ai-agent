@@ -33,7 +33,7 @@ Authorization: Bearer {token}
 
 ## Chat
 
-Chat requests are limited to 10 requests per authenticated user per minute.
+Chat requests are limited per authenticated user. The local default is 60 requests per minute and can be changed with `CHAT_RATE_LIMIT_PER_MINUTE`.
 
 ### List conversations
 

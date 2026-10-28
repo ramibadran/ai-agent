@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('chat', function (Request $request): Limit {
-            return Limit::perMinute(10)->by(
+            return Limit::perMinute((int) config('services.chat.rate_limit_per_minute'))->by(
                 ($request->user()?->id ?? 'guest').'|'.$request->ip(),
             );
         });

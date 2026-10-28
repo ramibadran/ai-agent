@@ -9,6 +9,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
   const token = localStorage.getItem('ai_agent_token')
   const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers } })
   const payload = await response.json() as ApiResponse<T>
+  if (response.status === 401) {
+    localStorage.removeItem('ai_agent_token')
+    window.location.reload()
+  }
   if (!response.ok) throw new Error(Array.isArray(payload.message) ? payload.message[0] : payload.message)
   return payload
 }

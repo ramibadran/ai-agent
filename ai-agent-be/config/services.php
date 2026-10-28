@@ -51,6 +51,10 @@ return [
         'minimum_score' => (float) env('QDRANT_MINIMUM_SCORE', 0.30),
     ],
 
+    'chat' => [
+        'rate_limit_per_minute' => (int) env('CHAT_RATE_LIMIT_PER_MINUTE', 60),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
