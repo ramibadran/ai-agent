@@ -33,6 +33,10 @@ return [
         'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
         'embedding_model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small'),
         'embedding_dimensions' => (int) env('OPENAI_EMBEDDING_DIMENSIONS', 1536),
+        'chat_model' => env('OPENAI_CHAT_MODEL', 'gpt-5.4-mini'),
+        'chat_max_output_tokens' => (int) env('OPENAI_CHAT_MAX_OUTPUT_TOKENS', 800),
+        'chat_input_cost_per_million' => (float) env('OPENAI_CHAT_INPUT_COST_PER_MILLION', 0.75),
+        'chat_output_cost_per_million' => (float) env('OPENAI_CHAT_OUTPUT_COST_PER_MILLION', 4.50),
     ],
 
     'qdrant' => [

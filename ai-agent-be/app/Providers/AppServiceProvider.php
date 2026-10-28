@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Contracts\AnswerGenerator;
 use App\Contracts\EmbeddingProvider;
+use App\Services\V1\OpenAiAnswerGenerator;
 use App\Services\V1\OpenAiEmbeddingProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -17,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(AnswerGenerator::class, OpenAiAnswerGenerator::class);
         $this->app->bind(EmbeddingProvider::class, OpenAiEmbeddingProvider::class);
     }
 
