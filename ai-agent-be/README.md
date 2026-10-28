@@ -98,6 +98,67 @@ Password: password
 
 The Vite development server proxies `/api` requests to Laravel at `http://127.0.0.1:8000`.
 
+## Real-time answer streaming with Reverb
+
+The chat uses Laravel Reverb to broadcast OpenAI text deltas over private WebSocket channels. This allows follow-up answers to appear incrementally instead of waiting for the full answer.
+
+### Configure the React client
+
+Create the frontend environment file:
+
+```bash
+cd ai-agent-fe
+cp .env.example .env
+```
+
+Set `VITE_REVERB_APP_KEY` to the same value as `REVERB_APP_KEY` in the backend `.env`. The app key is safe for the browser; never copy `REVERB_APP_SECRET` to the frontend.
+
+```env
+VITE_REVERB_APP_KEY=your_backend_reverb_app_key
+VITE_REVERB_HOST=127.0.0.1
+VITE_REVERB_PORT=8080
+```
+
+### Start all local processes
+
+Use three terminals:
+
+```bash
+# Terminal 1: Laravel HTTP API
+cd ai-agent-be
+php artisan serve
+```
+
+```bash
+# Terminal 2: Reverb WebSocket server
+cd ai-agent-be
+php artisan reverb:start
+```
+
+```bash
+# Terminal 3: React/Vite client
+cd ai-agent-fe
+npm run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/`.
+
+### Streaming data flow
+
+```text
+React subscribes to private conversation.{id}
+→ Laravel authorizes the JWT user at /api/broadcasting/auth
+→ Laravel calls OpenAI Responses API with stream=true
+→ OpenAI emits response.output_text.delta events
+→ Laravel broadcasts AssistantTextDelta through Reverb
+→ React appends each delta to the assistant message
+→ Laravel saves the completed answer and observability data in MySQL
+```
+
+Private channel authorization checks that the conversation belongs to the authenticated user, so users cannot subscribe to another user's chat.
+
+The first message in a brand-new conversation currently uses the normal completed-response display because the browser does not know the new conversation ID until Laravel creates it. Follow-up messages stream through Reverb. A future two-step create-then-send API will enable streaming for the first message too.
+
 ## Manual RAG chat test cases
 
 After seeding and indexing the fictional Northstar Nexus document, use the React chat client to verify the full flow: embedding, Qdrant retrieval, OpenAI answer generation, source display, and saved history.

@@ -2,6 +2,8 @@
 
 namespace App\Contracts;
 
+use Closure;
+
 interface AnswerGenerator
 {
     /**
@@ -12,4 +14,10 @@ interface AnswerGenerator
      * @return array{answer: string, model: string, prompt_tokens: int|null, completion_tokens: int|null, total_tokens: int|null, latency_ms: int, cost_usd: string}
      */
     public function generate(string $question, array $context, array $history = []): array;
+
+    /**
+     * @param  Closure(string): void  $onDelta
+     * @return array{answer: string, model: string, prompt_tokens: int|null, completion_tokens: int|null, total_tokens: int|null, latency_ms: int, cost_usd: string}
+     */
+    public function streamGenerate(string $question, array $context, array $history, Closure $onDelta): array;
 }

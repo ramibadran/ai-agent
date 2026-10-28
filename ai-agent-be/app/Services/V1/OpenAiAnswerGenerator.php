@@ -3,6 +3,8 @@
 namespace App\Services\V1;
 
 use App\Contracts\AnswerGenerator;
+use Closure;
+use GuzzleHttp\Client;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
@@ -10,6 +12,73 @@ use RuntimeException;
 
 class OpenAiAnswerGenerator implements AnswerGenerator
 {
+    /**
+     * Stream OpenAI text deltas to the supplied callback while building the final answer.
+     *
+     * @param  list<array<string, mixed>>  $context
+     * @param  list<array{role: string, content: string}>  $history
+     * @param  Closure(string): void  $onDelta
+     * @return array{answer: string, model: string, prompt_tokens: int|null, completion_tokens: int|null, total_tokens: int|null, latency_ms: int, cost_usd: string}
+     */
+    public function streamGenerate(string $question, array $context, array $history, Closure $onDelta): array
+    {
+        $startedAt = hrtime(true);
+        $response = $this->streamClient()->post('responses', [
+            'json' => $this->requestPayload($question, $context, $history) + ['stream' => true],
+            'stream' => true,
+        ]);
+        $buffer = '';
+        $answer = '';
+        $completed = [];
+        $body = $response->getBody();
+
+        while (! $body->eof()) {
+            $buffer .= $body->read(1024);
+
+            while (($position = strpos($buffer, "\n\n")) !== false) {
+                $event = substr($buffer, 0, $position);
+                $buffer = substr($buffer, $position + 2);
+                $data = collect(explode("\n", $event))
+                    ->filter(fn (string $line): bool => str_starts_with($line, 'data:'))
+                    ->map(fn (string $line): string => trim(substr($line, 5)))
+                    ->implode("\n");
+                $payload = json_decode($data, true);
+
+                if (! is_array($payload)) {
+                    continue;
+                }
+
+                if (($payload['type'] ?? null) === 'response.output_text.delta' && is_string($payload['delta'] ?? null)) {
+                    $answer .= $payload['delta'];
+                    $onDelta($payload['delta']);
+                }
+
+                if (($payload['type'] ?? null) === 'response.completed' && is_array($payload['response'] ?? null)) {
+                    $completed = $payload['response'];
+                }
+            }
+        }
+
+        $answer = trim($answer);
+
+        if ($answer === '') {
+            throw new RuntimeException('The answer provider returned no text.');
+        }
+
+        $promptTokens = $this->nullableInteger($completed['usage']['input_tokens'] ?? null);
+        $completionTokens = $this->nullableInteger($completed['usage']['output_tokens'] ?? null);
+
+        return [
+            'answer' => $answer,
+            'model' => (string) ($completed['model'] ?? $this->model()),
+            'prompt_tokens' => $promptTokens,
+            'completion_tokens' => $completionTokens,
+            'total_tokens' => $this->nullableInteger($completed['usage']['total_tokens'] ?? null),
+            'latency_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
+            'cost_usd' => $this->calculateCost($promptTokens, $completionTokens),
+        ];
+    }
+
     /**
      * @param  list<array{point_id: string|int, content_id: int, chunk_number: int, title: string, source_url: string|null, text: string, score: float}>  $context
      * @param  list<array{role: string, content: string}>  $history
@@ -22,12 +91,7 @@ class OpenAiAnswerGenerator implements AnswerGenerator
         }
 
         $startedAt = hrtime(true);
-        $response = $this->client()->post('/responses', [
-            'model' => $this->model(),
-            'instructions' => 'You are a helpful knowledge assistant. Answer only from the supplied knowledge context. If the context does not contain the answer, clearly say that you do not have enough information. Do not invent facts. Keep the answer concise and use plain text.',
-            'input' => $this->formatInput($question, $context, $history),
-            'max_output_tokens' => (int) config('services.openai.chat_max_output_tokens'),
-        ])->throw();
+        $response = $this->client()->post('/responses', $this->requestPayload($question, $context, $history))->throw();
         $latencyMs = (int) round((hrtime(true) - $startedAt) / 1_000_000);
 
         $answer = $this->responseText($response->json());
@@ -64,6 +128,33 @@ class OpenAiAnswerGenerator implements AnswerGenerator
             ->asJson()
             ->connectTimeout(5)
             ->timeout(90);
+    }
+
+    private function streamClient(): Client
+    {
+        $apiKey = (string) config('services.openai.api_key');
+
+        if ($apiKey === '') {
+            throw new InvalidArgumentException('OPENAI_API_KEY is required to generate answers.');
+        }
+
+        return new Client([
+            'base_uri' => rtrim((string) config('services.openai.base_url'), '/').'/',
+            'headers' => ['Authorization' => "Bearer {$apiKey}", 'Accept' => 'text/event-stream'],
+            'connect_timeout' => 5,
+            'timeout' => 90,
+        ]);
+    }
+
+    /** @param list<array<string, mixed>> $context @param list<array{role: string, content: string}> $history @return array<string, mixed> */
+    private function requestPayload(string $question, array $context, array $history): array
+    {
+        return [
+            'model' => $this->model(),
+            'instructions' => 'You are a helpful knowledge assistant. Answer only from the supplied knowledge context. If the context does not contain the answer, clearly say that you do not have enough information. Do not invent facts. Keep the answer concise and use plain text.',
+            'input' => $this->formatInput($question, $context, $history),
+            'max_output_tokens' => (int) config('services.openai.chat_max_output_tokens'),
+        ];
     }
 
     /**

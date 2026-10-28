@@ -27,7 +27,7 @@ class ChatConversationApiTest extends TestCase
         $this->app->instance(KnowledgeRetriever::class, $retriever);
 
         $answerGenerator = Mockery::mock(AnswerGenerator::class);
-        $answerGenerator->shouldReceive('generate')->once()->andReturn([
+        $answerGenerator->shouldReceive('streamGenerate')->once()->andReturn([
             'answer' => 'Northstar Nexus reported 18.4 million USD in FY2024.',
             'model' => 'gpt-5.4-mini', 'prompt_tokens' => 1000, 'completion_tokens' => 20,
             'total_tokens' => 1020, 'latency_ms' => 500, 'cost_usd' => '0.00084000',
@@ -84,7 +84,7 @@ class ChatConversationApiTest extends TestCase
         $this->app->instance(KnowledgeRetriever::class, $retriever);
 
         $answerGenerator = Mockery::mock(AnswerGenerator::class);
-        $answerGenerator->shouldReceive('generate')->once()->andReturn([
+        $answerGenerator->shouldReceive('streamGenerate')->once()->andReturn([
             'answer' => 'Northstar Nexus reported 18.4 million USD in FY2024.',
             'model' => 'gpt-5.4-mini', 'prompt_tokens' => 1000, 'completion_tokens' => 20,
             'total_tokens' => 1020, 'latency_ms' => 500, 'cost_usd' => '0.00084000',

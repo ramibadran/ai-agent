@@ -3,6 +3,7 @@
 namespace App\Services\V1;
 
 use App\Contracts\AnswerGenerator;
+use App\Events\AssistantTextDelta;
 use App\Models\Conversation;
 use App\Models\ConversationMessage;
 use App\Models\User;
@@ -71,7 +72,12 @@ class ChatService
                 ])
                 ->values()
                 ->all();
-            $answer = $this->answerGenerator->generate($message, $sources, $history);
+            $answer = $this->answerGenerator->streamGenerate(
+                $message,
+                $sources,
+                $history,
+                fn (string $delta): mixed => broadcast(new AssistantTextDelta($conversation->id, $delta)),
+            );
 
             $assistantMessage = $conversation->messages()->create([
                 'role' => 'assistant',
