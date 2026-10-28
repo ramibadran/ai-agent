@@ -19,7 +19,13 @@ class OpenAiAnswerGeneratorTest extends TestCase
         Http::fake([
             'http://openai.test/v1/responses' => Http::response([
                 'model' => 'gpt-5.4-mini',
-                'output_text' => 'Northstar Nexus reported 18.4 million USD in FY2024 revenue.',
+                'output' => [[
+                    'type' => 'message',
+                    'content' => [[
+                        'type' => 'output_text',
+                        'text' => 'Northstar Nexus reported 18.4 million USD in FY2024 revenue.',
+                    ]],
+                ]],
                 'usage' => [
                     'input_tokens' => 1000,
                     'output_tokens' => 20,

@@ -30,7 +30,7 @@ class OpenAiAnswerGenerator implements AnswerGenerator
         ])->throw();
         $latencyMs = (int) round((hrtime(true) - $startedAt) / 1_000_000);
 
-        $answer = trim((string) $response->json('output_text'));
+        $answer = $this->responseText($response->json());
 
         if ($answer === '') {
             throw new RuntimeException('The answer provider returned no text.');
@@ -99,6 +99,25 @@ class OpenAiAnswerGenerator implements AnswerGenerator
     private function nullableInteger(mixed $value): ?int
     {
         return is_numeric($value) ? (int) $value : null;
+    }
+
+    /**
+     * Extract generated text from the raw Responses API JSON structure.
+     *
+     * @param  array<string, mixed>  $response
+     */
+    private function responseText(array $response): string
+    {
+        if (is_string($response['output_text'] ?? null)) {
+            return trim($response['output_text']);
+        }
+
+        return trim((string) collect($response['output'] ?? [])
+            ->filter(fn (mixed $item): bool => is_array($item) && ($item['type'] ?? null) === 'message')
+            ->flatMap(fn (array $item) => $item['content'] ?? [])
+            ->filter(fn (mixed $item): bool => is_array($item) && ($item['type'] ?? null) === 'output_text')
+            ->pluck('text')
+            ->implode("\n"));
     }
 
     private function calculateCost(?int $promptTokens, ?int $completionTokens): string

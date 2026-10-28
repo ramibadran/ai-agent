@@ -70,6 +70,54 @@ The frontend-facing endpoint contract is documented in [docs/API.md](docs/API.md
    php artisan test
    ```
 
+## Run the React chat client
+
+The React/Vite client is in the sibling `ai-agent-fe` directory. Start the Laravel API first:
+
+```bash
+cd ai-agent-be
+php artisan serve
+```
+
+In a second terminal, install the frontend dependencies and start Vite:
+
+```bash
+cd ai-agent-fe
+npm install
+npm run dev
+```
+
+Open the local URL printed by Vite, normally `http://localhost:5173`.
+
+For the local seeded administrator account, sign in with:
+
+```text
+Email: admin@example.test
+Password: password
+```
+
+The Vite development server proxies `/api` requests to Laravel at `http://127.0.0.1:8000`.
+
+## Manual RAG chat test cases
+
+After seeding and indexing the fictional Northstar Nexus document, use the React chat client to verify the full flow: embedding, Qdrant retrieval, OpenAI answer generation, source display, and saved history.
+
+| Test type | Question | Expected answer or behavior |
+| --- | --- | --- |
+| Exact fact | `What was Northstar Nexus revenue in 2024?` | Revenue was 18.4 million USD. |
+| Growth | `What was the revenue growth rate in 2024?` | 31% year-over-year growth. |
+| Employees | `How many employees did Northstar Nexus have in 2024?` | 168 employees. |
+| Hiring plan | `How many people does the company plan to hire in 2025?` | 22 roles, with a target year-end headcount of 190. |
+| Product | `What is OrbitFlow?` | A supply-planning workspace for supply planners and operations managers. |
+| Product comparison | `What is the difference between OrbitFlow and PulseSight?` | OrbitFlow supports planning; PulseSight provides operations analytics. |
+| Financial forecast | `Is the company expected to be profitable in 2026?` | A fictional 0.6 million USD operating profit is forecast. |
+| Follow-up context | Ask `What is OrbitFlow?`, then ask `Who uses it?` | The answer should identify supply planners and operations managers. |
+| Follow-up context | Ask `What was revenue in 2024?`, then ask `What was the growth rate?` | The answer should understand the follow-up and return 31%. |
+| Unknown information | `Who is Rami?` | The assistant should say the indexed knowledge does not contain that information. |
+| Outside knowledge | `What is the capital of France?` | The assistant should not answer from general knowledge; it should say the information is unavailable in the knowledge base. |
+
+For relevant answers, verify that a source from `Northstar Nexus: Fictional Company Profile` appears below the response, and refresh the page to confirm the conversation remains in history.
+
 ## Development principles
 
 - MySQL is canonical; Qdrant is a derived index.
