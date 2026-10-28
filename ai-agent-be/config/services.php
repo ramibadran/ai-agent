@@ -37,6 +37,7 @@ return [
         'chat_max_output_tokens' => (int) env('OPENAI_CHAT_MAX_OUTPUT_TOKENS', 800),
         'chat_input_cost_per_million' => (float) env('OPENAI_CHAT_INPUT_COST_PER_MILLION', 0.75),
         'chat_output_cost_per_million' => (float) env('OPENAI_CHAT_OUTPUT_COST_PER_MILLION', 4.50),
+        'chat_history_message_limit' => (int) env('OPENAI_CHAT_HISTORY_MESSAGE_LIMIT', 10),
     ],
 
     'qdrant' => [

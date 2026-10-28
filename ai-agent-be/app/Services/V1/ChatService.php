@@ -45,7 +45,19 @@ class ChatService
 
         try {
             $sources = $this->knowledgeRetriever->retrieve($message);
-            $answer = $this->answerGenerator->generate($message, $sources);
+            $history = $conversation->messages()
+                ->whereKeyNot($userMessage->id)
+                ->latest('id')
+                ->limit((int) config('services.openai.chat_history_message_limit'))
+                ->get()
+                ->reverse()
+                ->map(fn (ConversationMessage $historyMessage): array => [
+                    'role' => $historyMessage->role,
+                    'content' => $historyMessage->content,
+                ])
+                ->values()
+                ->all();
+            $answer = $this->answerGenerator->generate($message, $sources, $history);
 
             $assistantMessage = $conversation->messages()->create([
                 'role' => 'assistant',

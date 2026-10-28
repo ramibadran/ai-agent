@@ -36,7 +36,10 @@ class OpenAiAnswerGeneratorTest extends TestCase
             'source_url' => null,
             'text' => 'FY2024 revenue was 18.4 million USD.',
             'score' => 0.91,
-        ]]);
+        ]], [
+            ['role' => 'user', 'content' => 'Tell me about Northstar Nexus.'],
+            ['role' => 'assistant', 'content' => 'It is a fictional B2B software company.'],
+        ]);
 
         $this->assertSame('Northstar Nexus reported 18.4 million USD in FY2024 revenue.', $result['answer']);
         $this->assertSame('gpt-5.4-mini', $result['model']);
@@ -47,6 +50,7 @@ class OpenAiAnswerGeneratorTest extends TestCase
 
         Http::assertSent(fn ($request): bool => $request->url() === 'http://openai.test/v1/responses'
             && $request['model'] === 'gpt-5.4-mini'
+            && str_contains($request['input'], 'User: Tell me about Northstar Nexus.')
             && str_contains($request['input'], 'FY2024 revenue was 18.4 million USD.'));
     }
 }
