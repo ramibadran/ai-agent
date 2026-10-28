@@ -33,5 +33,11 @@ class AppServiceProvider extends ServiceProvider
                 Str::lower($request->string('email')->toString()).'|'.$request->ip(),
             );
         });
+
+        RateLimiter::for('chat', function (Request $request): Limit {
+            return Limit::perMinute(10)->by(
+                ($request->user()?->id ?? 'guest').'|'.$request->ip(),
+            );
+        });
     }
 }

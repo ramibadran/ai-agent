@@ -45,6 +45,20 @@ class ChatService
 
         try {
             $sources = $this->knowledgeRetriever->retrieve($message);
+
+            if ($sources === []) {
+                $assistantMessage = $conversation->messages()->create([
+                    'role' => 'assistant',
+                    'content' => 'I could not find this information in the available knowledge base.',
+                    'retrieval_context' => [],
+                    'status' => 'completed',
+                ]);
+
+                $conversation->update(['last_message_at' => now()]);
+
+                return compact('conversation', 'userMessage', 'assistantMessage');
+            }
+
             $history = $conversation->messages()
                 ->whereKeyNot($userMessage->id)
                 ->latest('id')

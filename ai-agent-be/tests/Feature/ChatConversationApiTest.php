@@ -8,6 +8,7 @@ use App\Services\V1\ChatService;
 use App\Services\V1\KnowledgeRetriever;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Tests\TestCase;
 
 class ChatConversationApiTest extends TestCase
@@ -50,5 +51,58 @@ class ChatConversationApiTest extends TestCase
         $this->getJson('/api/v1/chat/conversations')
             ->assertUnauthorized()
             ->assertJsonPath('message', 'Authorization header is missing.');
+    }
+
+    public function test_it_returns_a_safe_answer_without_calling_the_llm_when_no_sources_exist(): void
+    {
+        $user = User::factory()->create();
+        $retriever = Mockery::mock(KnowledgeRetriever::class);
+        $retriever->shouldReceive('retrieve')->once()->andReturn([]);
+        $this->app->instance(KnowledgeRetriever::class, $retriever);
+
+        $answerGenerator = Mockery::mock(AnswerGenerator::class);
+        $answerGenerator->shouldNotReceive('generate');
+        $this->app->instance(AnswerGenerator::class, $answerGenerator);
+
+        $result = app(ChatService::class)->createConversation($user, 'What is the weather today?');
+
+        $this->assertSame('I could not find this information in the available knowledge base.', $result['assistantMessage']->content);
+        $this->assertSame('completed', $result['assistantMessage']->status);
+        $this->assertNull($result['assistantMessage']->model);
+        $this->assertSame([], $result['assistantMessage']->retrieval_context);
+    }
+
+    public function test_an_authenticated_user_can_create_and_view_a_conversation(): void
+    {
+        $user = User::factory()->create();
+        $retriever = Mockery::mock(KnowledgeRetriever::class);
+        $retriever->shouldReceive('retrieve')->once()->andReturn([[
+            'point_id' => 'point-1', 'content_id' => 7, 'chunk_number' => 2,
+            'title' => 'Northstar Nexus: Fictional Company Profile', 'source_url' => null,
+            'text' => 'FY2024 revenue was 18.4 million USD.', 'score' => 0.91,
+        ]]);
+        $this->app->instance(KnowledgeRetriever::class, $retriever);
+
+        $answerGenerator = Mockery::mock(AnswerGenerator::class);
+        $answerGenerator->shouldReceive('generate')->once()->andReturn([
+            'answer' => 'Northstar Nexus reported 18.4 million USD in FY2024.',
+            'model' => 'gpt-5.4-mini', 'prompt_tokens' => 1000, 'completion_tokens' => 20,
+            'total_tokens' => 1020, 'latency_ms' => 500, 'cost_usd' => '0.00084000',
+        ]);
+        $this->app->instance(AnswerGenerator::class, $answerGenerator);
+
+        $headers = ['Authorization' => 'Bearer '.JWTAuth::fromUser($user)];
+        $response = $this->postJson('/api/v1/chat/conversations', [
+            'message' => 'What was revenue in 2024?',
+        ], $headers)
+            ->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.messages.1.content', 'Northstar Nexus reported 18.4 million USD in FY2024.');
+
+        $conversationId = $response->json('data.id');
+
+        $this->getJson("/api/v1/chat/conversations/{$conversationId}", $headers)
+            ->assertOk()
+            ->assertJsonCount(2, 'data.messages');
     }
 }

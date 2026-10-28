@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('chat.')
     ->prefix('chat')
-    ->middleware('jwtAuth')
+    ->middleware(['jwtAuth', 'throttle:chat'])
     ->group(function (): void {
         Route::get('conversations', [ConversationController::class, 'index'])->name('conversations.index');
         Route::post('conversations', [ConversationController::class, 'store'])->name('conversations.store');

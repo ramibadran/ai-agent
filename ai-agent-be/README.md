@@ -4,7 +4,7 @@ A learning-focused, open-source Laravel backend for a Retrieval-Augmented Genera
 
 Administrators add and publish knowledge-base content. Laravel synchronizes that content to Qdrant for semantic search. Authenticated users can chat with an AI assistant that retrieves relevant internal content, returns cited answers, and saves their conversation history.
 
-> This repository is in active development. The foundation is in place; content indexing, chat, and observability are the next milestones.
+> This repository is in active development. Content indexing and the synchronous RAG chat foundation are in place; richer observability and real-time streaming are future milestones.
 
 ## Project goals
 
@@ -33,6 +33,8 @@ Laravel backend
 The full product and technical design is in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md). It explains the data flow, chunking strategy, Qdrant model, RAG process, security rules, observability plan, and delivery phases.
 
 For a complete macOS local setup guide covering MySQL, OpenAI, Qdrant, Filament, verification, and troubleshooting, read [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md).
+
+The frontend-facing endpoint contract is documented in [docs/API.md](docs/API.md).
 
 ## Local setup
 
