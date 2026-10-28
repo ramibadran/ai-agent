@@ -48,6 +48,7 @@ return [
         'chunk_size' => (int) env('QDRANT_CHUNK_SIZE', 800),
         'chunk_overlap' => (int) env('QDRANT_CHUNK_OVERLAP', 200),
         'retrieval_limit' => (int) env('QDRANT_RETRIEVAL_LIMIT', 5),
+        'minimum_score' => (float) env('QDRANT_MINIMUM_SCORE', 0.30),
     ],
 
     'slack' => [

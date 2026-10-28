@@ -31,6 +31,7 @@ class KnowledgeRetriever
         $vector = $this->embeddingProvider->embed([$question])[0];
 
         return collect($this->qdrant->search($vector, $limit))
+            ->filter(fn (array $point): bool => $point['score'] >= (float) config('services.qdrant.minimum_score'))
             ->map(function (array $point): array {
                 $payload = $point['payload'];
 

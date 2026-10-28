@@ -62,4 +62,38 @@ class KnowledgeRetrieverTest extends TestCase
                 && $request['with_vector'] === false;
         });
     }
+
+    public function test_it_discards_results_below_the_minimum_relevance_score(): void
+    {
+        config()->set('services.qdrant.url', 'http://qdrant.test');
+        config()->set('services.qdrant.collection', 'knowledge_chunks');
+        config()->set('services.qdrant.vector_size', 3);
+        config()->set('services.qdrant.minimum_score', 0.30);
+
+        $embeddingProvider = Mockery::mock(EmbeddingProvider::class);
+        $embeddingProvider->shouldReceive('embed')->once()->andReturn([[0.1, 0.2, 0.3]]);
+        $this->app->instance(EmbeddingProvider::class, $embeddingProvider);
+
+        Http::fake([
+            'http://qdrant.test/collections/knowledge_chunks/points/query' => Http::response([
+                'result' => [
+                    'points' => [[
+                        'id' => 'weak-point',
+                        'score' => 0.018,
+                        'payload' => [
+                            'content_id' => 7,
+                            'chunk_number' => 1,
+                            'title' => 'Northstar Nexus: Fictional Company Profile',
+                            'source_url' => null,
+                            'text' => 'Unrelated chunk.',
+                        ],
+                    ]],
+                ],
+            ]),
+        ]);
+
+        $results = app(KnowledgeRetriever::class)->retrieve('Who is Rami?');
+
+        $this->assertSame([], $results);
+    }
 }

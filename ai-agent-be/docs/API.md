@@ -116,3 +116,5 @@ I could not find this information in the available knowledge base.
 ```
 
 It does not invoke the OpenAI chat model, so its answer-generation cost is zero. The question still uses one small embedding request before Qdrant can determine that no source matches.
+
+Qdrant chunks with a similarity score below `QDRANT_MINIMUM_SCORE` (default: `0.30`) are treated as not relevant.
