@@ -174,10 +174,21 @@ After seeding and indexing the fictional Northstar Nexus document, use the React
 | Financial forecast | `Is the company expected to be profitable in 2026?` | A fictional 0.6 million USD operating profit is forecast. |
 | Follow-up context | Ask `What is OrbitFlow?`, then ask `Who uses it?` | The answer should identify supply planners and operations managers. |
 | Follow-up context | Ask `What was revenue in 2024?`, then ask `What was the growth rate?` | The answer should understand the follow-up and return 31%. |
+| Long streamed response | Start a conversation, then ask: `Prepare a detailed 30-line executive briefing on Northstar Nexus covering its products, delivery model, 2025 strategy, technology, regional growth, 2026 plan, and risks.` | On this follow-up message, the assistant should produce a structured, multi-section answer and display it incrementally through Reverb. |
 | Unknown information | `Who is Rami?` | The assistant should say the indexed knowledge does not contain that information. |
 | Outside knowledge | `What is the capital of France?` | The assistant should not answer from general knowledge; it should say the information is unavailable in the knowledge base. |
 
 For relevant answers, verify that a source from `Northstar Nexus: Fictional Company Profile` appears below the response, and refresh the page to confirm the conversation remains in history.
+
+After changing the seeded document, refresh MySQL and the derived Qdrant index before testing:
+
+```bash
+cd ai-agent-be
+php artisan db:seed --class=KnowledgeContentSeeder
+php artisan knowledge:reindex
+```
+
+Reindexing sends the changed chunks to OpenAI's embedding model and therefore has a small API cost.
 
 ## Development principles
 

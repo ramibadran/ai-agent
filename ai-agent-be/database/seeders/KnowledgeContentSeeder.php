@@ -132,6 +132,52 @@ The 2025 plan assumes stronger PulseSight adoption, lower implementation time, a
 Northstar Nexus has four fictional priorities for 2025. First, improve OrbitFlow forecast accuracy by introducing supplier-risk signals and scenario planning, targeting a 15 percent improvement for customers using the new workflow. Second, grow PulseSight adoption from 38 percent to 55 percent of the customer base. Third, reduce standard implementation time from 14 weeks to 9 weeks. Fourth, expand into the Gulf Cooperation Council region through two implementation partners.
 
 The company will not pursue consumer products or a broad self-service product line in 2025. Its focus remains mid-market operational teams with complex supply chains.
+
+## Operating model and customer delivery
+
+Every fictional enterprise customer is assigned an implementation lead, a solution architect, a customer success manager, and an executive sponsor. A standard OrbitFlow deployment begins with a two-week discovery phase, followed by data mapping, configuration, user acceptance testing, training, and a four-week hypercare period after launch. The implementation team normally integrates purchase-order, inventory, warehouse-management, and enterprise-resource-planning data.
+
+Northstar Nexus measures delivery health through four operational metrics: time to first usable forecast, percentage of planned data feeds live, weekly active planners, and the number of critical workflow exceptions resolved. The FY2025 target is for 90 percent of standard deployments to go live within nine weeks and for 80 percent of named users to be active each month by the end of their first quarter.
+
+Customer Operations has three fictional service levels. Essential includes business-hours support and quarterly success reviews. Growth adds monthly adoption workshops and a six-hour response target for high-priority incidents. Strategic includes a dedicated success manager, a joint quarterly operating review, and a two-hour response target for high-priority incidents. In 2024, 72 percent of customers were on Growth or Strategic plans.
+
+The company runs a weekly customer-risk review. Accounts are flagged when weekly active usage falls for three consecutive weeks, when a critical integration is delayed, or when the customer has unresolved operational exceptions for more than ten business days. The goal is not only renewal protection: the review also identifies customers ready to add PulseSight or VaultGrid.
+
+## Product roadmap and operating metrics
+
+The fictional OrbitFlow roadmap for 2025 has three releases. The March release adds supplier-risk alerts that combine late-delivery history, lead-time variability, and open purchase orders. The July release adds scenario planning, allowing planners to compare inventory and service-level outcomes before approving a change. The October release adds role-based approval flows for high-value supply decisions.
+
+PulseSight will add an executive operations scorecard in the second quarter of 2025. It will show on-time delivery, forecast accuracy, inventory turns, supplier reliability, expediting cost, and working-capital impact in one view. The product team expects the scorecard to shorten monthly operating-review preparation from five business days to two.
+
+For FY2025, product leadership tracks these fictional targets: 55 percent PulseSight adoption, 30 percent VaultGrid attachment among new enterprise deals, 15 percent better forecast accuracy for customers using scenario planning, and a reduction in manually maintained spreadsheet reports from an average of 18 to 8 per customer operations team.
+
+## Technology, security, and data governance
+
+Northstar Nexus is a fictional multi-tenant software-as-a-service platform. Its application services run in two cloud regions, while each customer has logically separated data access controls. Production changes require automated testing, peer review, and an approval from the on-call engineering lead. The Platform Foundations squad owns reliability, identity, data ingestion, and developer tooling.
+
+The fictional 2025 availability objective for OrbitFlow and PulseSight is 99.9 percent per calendar month, excluding announced maintenance. The engineering team aims to acknowledge critical incidents within 15 minutes, publish an initial customer update within 60 minutes, and complete a blameless incident review within five business days.
+
+Customer data is encrypted in transit and at rest. Access to production data is limited to approved support personnel and is logged. The fictional data-retention policy keeps customer operational records for the contract term plus 90 days, unless a customer contract requires a different retention period. Backup copies are retained for 35 days and tested through quarterly restoration exercises.
+
+The company does not train public AI models on customer operational data. Any future AI-assisted product feature must pass a product-security review, provide an audit trail, and allow administrators to control which business data is included in generated insights.
+
+## Regional growth and partnerships
+
+The GCC expansion plan uses two fictional implementation partners: Cedar Bridge Consulting in Riyadh and Atlas Meridian Systems in Dubai. Partners provide local implementation capacity, Arabic-language change-management support, and industry connections; Northstar Nexus remains responsible for product support and customer success.
+
+The 2025 regional target is six signed GCC customers, 1.8 million USD in new annual recurring revenue, and at least one referenceable customer in logistics or food distribution. The commercial team will avoid discounting below the standard enterprise price floor unless the Chief Financial Officer approves an exception with a clear expansion plan.
+
+In Europe, the Revenue team is focusing on existing customer expansion rather than opening a new office. Its FY2025 target is 4.2 million USD of expansion annual recurring revenue, with at least half coming from PulseSight adoption. Meridian Cargo Cooperative is expected to pilot the executive operations scorecard during the third quarter.
+
+## 2026 operating plan, risks, and decision points
+
+The fictional FY2026 plan assumes revenue of 31.8 million USD, annual recurring revenue of 35.4 million USD, gross margin of 76 percent, and a full-year operating profit of 0.6 million USD. The plan assumes that standard implementation time reaches eight weeks, PulseSight adoption reaches 64 percent of customers, and gross customer retention remains at or above 93 percent.
+
+The draft 2026 hiring plan contains 26 roles: ten in Engineering, five in Customer Operations, four in Revenue, three in Product and Design, two in Finance, and two in People Operations. Hiring is phased by quarter and is contingent on the company reaching 28 million USD of annual recurring revenue by the end of the third quarter of 2026.
+
+Leadership has identified four primary fictional risks. First, slower enterprise buying cycles could delay new annual recurring revenue. Second, poor source-data quality could lengthen implementations. Third, a major supplier disruption could reduce customer confidence in forecast recommendations. Fourth, hiring too quickly before revenue milestones are met could delay profitability. The mitigation plan includes quarterly hiring gates, implementation-readiness assessments, supplier-risk playbooks, and monthly pipeline reviews.
+
+The board will review three decision points in September 2026: whether to open a small Riyadh office, whether to expand VaultGrid as a stand-alone product, and whether to invest in a North American partner program. These decisions depend on revenue quality, implementation capacity, customer retention, and the sustainability of the operating profit target.
 MARKDOWN,
                 'source_url' => 'https://northstar-nexus.example/company-profile',
                 'metadata' => [

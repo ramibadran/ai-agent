@@ -151,7 +151,7 @@ class OpenAiAnswerGenerator implements AnswerGenerator
     {
         return [
             'model' => $this->model(),
-            'instructions' => 'You are a helpful knowledge assistant. Answer only from the supplied knowledge context. If the context does not contain the answer, clearly say that you do not have enough information. Do not invent facts. Keep the answer concise and use plain text.',
+            'instructions' => 'You are a helpful knowledge assistant. Answer only from the supplied knowledge context. If the context does not contain the answer, clearly say that you do not have enough information. Do not invent facts. Match the requested level of detail: keep ordinary answers concise, but when the user explicitly asks for a detailed, comprehensive, or long answer, cover the relevant supplied facts thoroughly with clear plain-text headings and bullet points.',
             'input' => $this->formatInput($question, $context, $history),
             'max_output_tokens' => (int) config('services.openai.chat_max_output_tokens'),
         ];
