@@ -4,14 +4,13 @@ A learning-focused, open-source Laravel backend for a Retrieval-Augmented Genera
 
 Administrators add and publish knowledge-base content. Laravel synchronizes that content to Qdrant for semantic search. Authenticated users can chat with an AI assistant that retrieves relevant internal content, returns cited answers, and saves their conversation history.
 
-> This repository is in active development. Content indexing and the synchronous RAG chat foundation are in place; richer observability and real-time streaming are future milestones.
+> This repository is in active development. It currently uses direct, synchronous Qdrant indexing and Reverb-based answer streaming. Redis and background queues are intentionally out of scope for this MVP.
 
 ## Project goals
 
 - Laravel API and admin workflows for knowledge-base content.
 - MySQL as the source of truth for content, conversations, and AI-run data.
 - Qdrant for embedding storage and similarity search.
-- Redis and Laravel queues for future asynchronous processing.
 - Laravel Reverb for private, real-time chat events.
 - Custom observability for tokens, estimated cost, latency, retrieved sources, and errors.
 - A separate React/Vite chat client in the `ai-agent-fe` repository.
@@ -23,18 +22,17 @@ React chat client
   | HTTPS API + private WebSocket channels
 Laravel backend
   |--- MySQL: users, content, conversations, AI traces
-  |--- Redis: queues and real-time infrastructure
   |--- Qdrant: derived vector index
   `--- LLM provider: text generation and embeddings
 ```
 
 ## Documentation
 
-The full product and technical design is in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md). It explains the data flow, chunking strategy, Qdrant model, RAG process, security rules, observability plan, and delivery phases.
+Read these project documents before running or extending the application:
 
-For a complete macOS local setup guide covering MySQL, OpenAI, Qdrant, Filament, verification, and troubleshooting, read [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md).
-
-The frontend-facing endpoint contract is documented in [docs/API.md](docs/API.md).
+- [Product and technical specification](docs/PROJECT_SPEC.md) — architecture, RAG design, data flow, security, and delivery phases.
+- [Local setup guide](docs/LOCAL_SETUP.md) — macOS setup for MySQL, OpenAI, Qdrant, Filament, verification, and troubleshooting.
+- [API contract](docs/API.md) — frontend-facing endpoints, request bodies, and responses.
 
 ## Local setup
 
@@ -50,7 +48,7 @@ The frontend-facing endpoint contract is documented in [docs/API.md](docs/API.md
    php artisan key:generate
    ```
 
-3. Configure MySQL, Redis, Qdrant, and AI-provider credentials in `.env`.
+3. Configure MySQL, Qdrant, OpenAI, and Reverb credentials in `.env`.
 
 4. Install PHP dependencies:
 
@@ -193,7 +191,7 @@ Reindexing sends the changed chunks to OpenAI's embedding model and therefore ha
 ## Development principles
 
 - MySQL is canonical; Qdrant is a derived index.
-- MVP indexing is direct and idempotent; it will move to asynchronous processing after the MVP.
+- MVP indexing is direct and idempotent. Redis and queues are not required or used in the current application.
 - The LLM receives only controlled tools; it never has direct infrastructure access.
 - Grounded answers cite their retrieved sources.
 - Secrets, private prompts, and real business content never enter the public repository.
