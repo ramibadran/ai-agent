@@ -29,7 +29,7 @@ class ConversationController extends BaseApiController
     public function store(StoreConversationRequest $request, ChatService $chatService): JsonResponse
     {
         return $this->executeWithErrorHandling(function () use ($request, $chatService): JsonResponse {
-            $result = $chatService->createConversation($request->user(), $request->string('message')->toString());
+            $result = $chatService->createConversation($request->user(), $request->string('message')->toString(), $request->string('mode', 'rag')->toString());
             $conversation = $result['conversation']->load('messages');
 
             return $this->apiResponse('Conversation created.', new ConversationResource($conversation), Response::HTTP_CREATED);
@@ -52,7 +52,7 @@ class ConversationController extends BaseApiController
         }
 
         return $this->executeWithErrorHandling(function () use ($request, $conversation, $chatService): JsonResponse {
-            $result = $chatService->sendMessage($conversation, $request->string('message')->toString());
+            $result = $chatService->sendMessage($conversation, $request->string('message')->toString(), $request->string('mode', 'rag')->toString());
 
             return $this->apiResponse('Message sent.', [
                 'user_message' => new ConversationMessageResource($result['userMessage']),

@@ -72,6 +72,33 @@ class ChatConversationApiTest extends TestCase
         $this->assertSame([], $result['assistantMessage']->retrieval_context);
     }
 
+    public function test_it_saves_web_citations_without_querying_qdrant(): void
+    {
+        $user = User::factory()->create();
+        $retriever = Mockery::mock(KnowledgeRetriever::class);
+        $retriever->shouldNotReceive('retrieve');
+        $this->app->instance(KnowledgeRetriever::class, $retriever);
+
+        $answerGenerator = Mockery::mock(AnswerGenerator::class);
+        $answerGenerator->shouldReceive('streamWebGenerate')->once()->andReturn([
+            'answer' => 'A public web answer with a cited source.',
+            'model' => 'gpt-5.4-mini', 'prompt_tokens' => 1000, 'completion_tokens' => 20,
+            'total_tokens' => 1020, 'latency_ms' => 500, 'cost_usd' => '0.00084000',
+            'sources' => [[
+                'source_type' => 'web',
+                'title' => 'Example public source',
+                'source_url' => 'https://example.com/article',
+            ]],
+        ]);
+        $this->app->instance(AnswerGenerator::class, $answerGenerator);
+
+        $result = app(ChatService::class)->createConversation($user, 'What happened today?', 'web');
+
+        $this->assertSame('A public web answer with a cited source.', $result['assistantMessage']->content);
+        $this->assertSame('web', $result['assistantMessage']->retrieval_context[0]['source_type']);
+        $this->assertSame('https://example.com/article', $result['assistantMessage']->retrieval_context[0]['source_url']);
+    }
+
     public function test_an_authenticated_user_can_create_and_view_a_conversation(): void
     {
         $user = User::factory()->create();

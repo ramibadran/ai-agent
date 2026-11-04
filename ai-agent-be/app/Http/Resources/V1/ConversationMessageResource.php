@@ -20,11 +20,12 @@ class ConversationMessageResource extends JsonResource
             'content' => $this->content,
             'sources' => $this->when($this->role === 'assistant' && $this->retrieval_context !== null, fn (): array => collect($this->retrieval_context)
                 ->map(fn (array $source): array => [
-                    'content_id' => $source['content_id'],
-                    'chunk_number' => $source['chunk_number'],
-                    'title' => $source['title'],
-                    'source_url' => $source['source_url'],
-                    'score' => $source['score'],
+                    'source_type' => $source['source_type'] ?? 'internal',
+                    'content_id' => $source['content_id'] ?? null,
+                    'chunk_number' => $source['chunk_number'] ?? null,
+                    'title' => $source['title'] ?? 'Unknown source',
+                    'source_url' => $source['source_url'] ?? null,
+                    'score' => $source['score'] ?? null,
                 ])
                 ->all()),
             'observability' => $this->when($this->role === 'assistant', fn (): array => [

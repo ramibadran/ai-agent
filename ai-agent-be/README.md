@@ -157,6 +157,16 @@ Private channel authorization checks that the conversation belongs to the authen
 
 The first message in a brand-new conversation currently uses the normal completed-response display because the browser does not know the new conversation ID until Laravel creates it. Follow-up messages stream through Reverb. A future two-step create-then-send API will enable streaming for the first message too.
 
+## Chat search modes
+
+The React composer has three source-mode tabs:
+
+- **RAG** — searches only the internal knowledge base using question embeddings, Qdrant, and retrieved chunks. Returned sources have `source_type: internal` and include chunk number and similarity score.
+- **Web** — uses OpenAI's hosted web-search tool. It does not read or write Qdrant. Returned URL citations have `source_type: web` and are shown as clickable links.
+- **Both** — intentionally disabled for now. It will be enabled only after the application can combine internal and web sources while clearly separating them and handling conflicting facts.
+
+Web search has additional provider cost and latency. Keep factual web citations visible in the UI and do not present public web content as internal company knowledge.
+
 ## Manual RAG chat test cases
 
 After seeding and indexing the fictional Northstar Nexus document, use the React chat client to verify the full flow: embedding, Qdrant retrieval, OpenAI answer generation, source display, and saved history.

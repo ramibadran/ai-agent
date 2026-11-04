@@ -22,9 +22,31 @@ class OpenAiAnswerGenerator implements AnswerGenerator
      */
     public function streamGenerate(string $question, array $context, array $history, Closure $onDelta): array
     {
+        return $this->streamResponse($this->requestPayload($question, $context, $history), $onDelta);
+    }
+
+    /**
+     * Stream a public-web answer and retain the URL citations returned by OpenAI.
+     *
+     * @param  list<array{role: string, content: string}>  $history
+     * @param  Closure(string): void  $onDelta
+     * @return array{answer: string, model: string, prompt_tokens: int|null, completion_tokens: int|null, total_tokens: int|null, latency_ms: int, cost_usd: string, sources: list<array{source_type: 'web', title: string, source_url: string}>}
+     */
+    public function streamWebGenerate(string $question, array $history, Closure $onDelta): array
+    {
+        return $this->streamResponse($this->webSearchRequestPayload($question, $history), $onDelta, true);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @param  Closure(string): void  $onDelta
+     * @return array{answer: string, model: string, prompt_tokens: int|null, completion_tokens: int|null, total_tokens: int|null, latency_ms: int, cost_usd: string, sources?: list<array{source_type: 'web', title: string, source_url: string}>}
+     */
+    private function streamResponse(array $payload, Closure $onDelta, bool $includeWebSources = false): array
+    {
         $startedAt = hrtime(true);
         $response = $this->streamClient()->post('responses', [
-            'json' => $this->requestPayload($question, $context, $history) + ['stream' => true],
+            'json' => $payload + ['stream' => true],
             'stream' => true,
         ]);
         $buffer = '';
@@ -68,7 +90,7 @@ class OpenAiAnswerGenerator implements AnswerGenerator
         $promptTokens = $this->nullableInteger($completed['usage']['input_tokens'] ?? null);
         $completionTokens = $this->nullableInteger($completed['usage']['output_tokens'] ?? null);
 
-        return [
+        $result = [
             'answer' => $answer,
             'model' => (string) ($completed['model'] ?? $this->model()),
             'prompt_tokens' => $promptTokens,
@@ -77,6 +99,12 @@ class OpenAiAnswerGenerator implements AnswerGenerator
             'latency_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
             'cost_usd' => $this->calculateCost($promptTokens, $completionTokens),
         ];
+
+        if ($includeWebSources) {
+            $result['sources'] = $this->webSources($completed);
+        }
+
+        return $result;
     }
 
     /**
@@ -157,6 +185,18 @@ class OpenAiAnswerGenerator implements AnswerGenerator
         ];
     }
 
+    /** @param list<array{role: string, content: string}> $history @return array<string, mixed> */
+    private function webSearchRequestPayload(string $question, array $history): array
+    {
+        return [
+            'model' => $this->model(),
+            'instructions' => 'You are a helpful web research assistant. Answer from current public web-search results only. Do not claim that public-web facts come from the internal knowledge base. Do not invent facts, URLs, or citations. Use clear plain text and make factual claims traceable to the returned web citations.',
+            'input' => $this->formatWebInput($question, $history),
+            'tools' => [['type' => 'web_search']],
+            'max_output_tokens' => (int) config('services.openai.chat_max_output_tokens'),
+        ];
+    }
+
     /**
      * @param  list<array{point_id: string|int, content_id: int, chunk_number: int, title: string, source_url: string|null, text: string, score: float}>  $context
      */
@@ -180,6 +220,37 @@ class OpenAiAnswerGenerator implements AnswerGenerator
                 ->implode("\n");
 
         return "Conversation history:\n{$historyText}\n\nQuestion:\n{$question}\n\nKnowledge context:\n".$this->formatContext($context);
+    }
+
+    /** @param list<array{role: string, content: string}> $history */
+    private function formatWebInput(string $question, array $history): string
+    {
+        $historyText = $history === []
+            ? 'No previous messages.'
+            : collect($history)
+                ->map(fn (array $message): string => ucfirst($message['role']).": {$message['content']}")
+                ->implode("\n");
+
+        return "Conversation history:\n{$historyText}\n\nQuestion:\n{$question}";
+    }
+
+    /** @return list<array{source_type: 'web', title: string, source_url: string}> */
+    private function webSources(array $response): array
+    {
+        return collect($response['output'] ?? [])
+            ->filter(fn (mixed $item): bool => is_array($item) && ($item['type'] ?? null) === 'message')
+            ->flatMap(fn (array $item) => $item['content'] ?? [])
+            ->filter(fn (mixed $content): bool => is_array($content) && ($content['type'] ?? null) === 'output_text')
+            ->flatMap(fn (array $content) => $content['annotations'] ?? [])
+            ->filter(fn (mixed $annotation): bool => is_array($annotation) && ($annotation['type'] ?? null) === 'url_citation' && filled($annotation['url'] ?? null))
+            ->map(fn (array $annotation): array => [
+                'source_type' => 'web',
+                'title' => filled($annotation['title'] ?? null) ? (string) $annotation['title'] : (string) $annotation['url'],
+                'source_url' => (string) $annotation['url'],
+            ])
+            ->unique('source_url')
+            ->values()
+            ->all();
     }
 
     private function model(): string

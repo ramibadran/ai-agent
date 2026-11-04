@@ -20,4 +20,13 @@ interface AnswerGenerator
      * @return array{answer: string, model: string, prompt_tokens: int|null, completion_tokens: int|null, total_tokens: int|null, latency_ms: int, cost_usd: string}
      */
     public function streamGenerate(string $question, array $context, array $history, Closure $onDelta): array;
+
+    /**
+     * Generate an answer using the hosted web-search tool.
+     *
+     * @param  list<array{role: string, content: string}>  $history
+     * @param  Closure(string): void  $onDelta
+     * @return array{answer: string, model: string, prompt_tokens: int|null, completion_tokens: int|null, total_tokens: int|null, latency_ms: int, cost_usd: string, sources: list<array{source_type: 'web', title: string, source_url: string}>}
+     */
+    public function streamWebGenerate(string $question, array $history, Closure $onDelta): array;
 }

@@ -22,14 +22,14 @@ class ChatService
      *
      * @return array{conversation: Conversation, user_message: ConversationMessage, assistant_message: ConversationMessage}
      */
-    public function createConversation(User $user, string $message): array
+    public function createConversation(User $user, string $message, string $mode = 'rag'): array
     {
         $conversation = Conversation::query()->create([
             'user_id' => $user->id,
             'title' => Str::limit($message, 80),
         ]);
 
-        return $this->sendMessage($conversation, $message);
+        return $this->sendMessage($conversation, $message, $mode);
     }
 
     /**
@@ -37,7 +37,7 @@ class ChatService
      *
      * @return array{conversation: Conversation, user_message: ConversationMessage, assistant_message: ConversationMessage}
      */
-    public function sendMessage(Conversation $conversation, string $message): array
+    public function sendMessage(Conversation $conversation, string $message, string $mode = 'rag'): array
     {
         $userMessage = $conversation->messages()->create([
             'role' => 'user',
@@ -45,21 +45,6 @@ class ChatService
         ]);
 
         try {
-            $sources = $this->knowledgeRetriever->retrieve($message);
-
-            if ($sources === []) {
-                $assistantMessage = $conversation->messages()->create([
-                    'role' => 'assistant',
-                    'content' => 'I could not find this information in the available knowledge base.',
-                    'retrieval_context' => [],
-                    'status' => 'completed',
-                ]);
-
-                $conversation->update(['last_message_at' => now()]);
-
-                return compact('conversation', 'userMessage', 'assistantMessage');
-            }
-
             $history = $conversation->messages()
                 ->whereKeyNot($userMessage->id)
                 ->latest('id')
@@ -72,12 +57,40 @@ class ChatService
                 ])
                 ->values()
                 ->all();
-            $answer = $this->answerGenerator->streamGenerate(
-                $message,
-                $sources,
-                $history,
-                fn (string $delta): mixed => broadcast(new AssistantTextDelta($conversation->id, $delta)),
-            );
+
+            if ($mode === 'web') {
+                $answer = $this->answerGenerator->streamWebGenerate(
+                    $message,
+                    $history,
+                    fn (string $delta): mixed => broadcast(new AssistantTextDelta($conversation->id, $delta)),
+                );
+                $sources = $answer['sources'];
+            } else {
+                $sources = $this->knowledgeRetriever->retrieve($message);
+
+                if ($sources === []) {
+                    $assistantMessage = $conversation->messages()->create([
+                        'role' => 'assistant',
+                        'content' => 'I could not find this information in the available knowledge base.',
+                        'retrieval_context' => [],
+                        'status' => 'completed',
+                    ]);
+
+                    $conversation->update(['last_message_at' => now()]);
+
+                    return compact('conversation', 'userMessage', 'assistantMessage');
+                }
+
+                $sources = collect($sources)
+                    ->map(fn (array $source): array => ['source_type' => 'internal'] + $source)
+                    ->all();
+                $answer = $this->answerGenerator->streamGenerate(
+                    $message,
+                    $sources,
+                    $history,
+                    fn (string $delta): mixed => broadcast(new AssistantTextDelta($conversation->id, $delta)),
+                );
+            }
 
             $assistantMessage = $conversation->messages()->create([
                 'role' => 'assistant',

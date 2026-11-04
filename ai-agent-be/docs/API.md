@@ -47,11 +47,18 @@ Returns only the authenticated user's conversations, newest activity first.
 
 ```json
 {
-  "message": "What was Northstar Nexus revenue in 2024?"
+  "message": "What was Northstar Nexus revenue in 2024?",
+  "mode": "rag"
 }
 ```
 
-The backend saves the user message, retrieves relevant Qdrant chunks, generates an answer when sources exist, then saves the assistant message.
+`mode` is optional and defaults to `rag`.
+
+- `rag`: retrieves internal Qdrant chunks and answers only from indexed knowledge.
+- `web`: uses OpenAI hosted web search and returns public URL citations.
+- `both`: not available yet. The API rejects it until combined-source rules are implemented.
+
+The backend saves the user message, retrieves the selected source type, generates an answer, then saves the assistant message.
 
 ### Read a conversation
 
@@ -65,11 +72,12 @@ Returns the full ordered message history. A user cannot read another user's conv
 
 ```json
 {
-  "message": "What was the growth rate?"
+  "message": "What was the growth rate?",
+  "mode": "rag"
 }
 ```
 
-The LLM receives recent conversation history, the new question, and fresh Qdrant sources.
+The LLM receives recent conversation history, the new question, and fresh sources for the selected mode.
 
 ### Delete a conversation
 
@@ -86,6 +94,7 @@ Deletes the conversation and its messages.
   "content": "Northstar Nexus reported 18.4 million USD in FY2024 revenue.",
   "sources": [
     {
+      "source_type": "internal",
       "content_id": 7,
       "chunk_number": 2,
       "title": "Northstar Nexus: Fictional Company Profile",

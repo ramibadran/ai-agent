@@ -4,7 +4,7 @@
 
 AI Knowledge Agent is a learning-focused, open-source Retrieval-Augmented Generation (RAG) chat application. An administrator adds and publishes knowledge-base content. Laravel indexes published content into Qdrant. Authenticated users chat with an assistant that retrieves relevant internal content and cites its sources.
 
-The public project demonstrates Laravel, queues, real-time chat, vector search, RAG, authorization, and custom AI observability.
+The public project demonstrates Laravel, synchronous content indexing, real-time chat, vector search, RAG, public web search, authorization, and custom AI observability.
 
 ## Goals
 
@@ -39,8 +39,8 @@ This repository is `agent-ai-backend`. Browser code never receives database, Qdr
 | Admin | Laravel admin panel | Content, indexing status, and observability workflows |
 | Database | MySQL | Canonical source for business data, content, conversations, and traces |
 | Vector database | Qdrant | Semantic similarity search over derived content chunks |
-| AI provider | Configured through Laravel AI SDK | Chat, embeddings, tools, and streaming |
-| Asynchronous work | Laravel Queues + Redis | Indexing and retries |
+| AI provider | OpenAI Responses and Embeddings APIs | Chat, embeddings, hosted web search, and streaming |
+| Content synchronization | Direct Laravel services | Synchronous MySQL-to-Qdrant indexing for the MVP |
 | Real-time delivery | Laravel Reverb + Echo | Private conversation and indexing events |
 | Client | React + Vite | Chat interface, history sidebar, citations |
 
@@ -51,7 +51,6 @@ React client
   | HTTPS API + private WebSocket channels
 Laravel backend
   |--- MySQL: source of truth
-  |--- Redis: queues and real-time scaling
   |--- Qdrant: vector index
   `--- LLM provider: model inference and embeddings
 ```
@@ -68,12 +67,12 @@ unpublished -> removed_from_index
 ```
 
 1. An admin creates or edits content in MySQL.
-2. Publishing, re-indexing, or changing published content dispatches an `IndexKnowledgeContent` job.
+2. Publishing, re-indexing, or changing published content synchronizes Qdrant directly during the request.
 3. Laravel converts rich text to clean text, then chunks it.
 4. Initial chunking uses **800 tokens per chunk and 200 tokens overlap**.
 5. Laravel generates embeddings and upserts Qdrant points in batches.
 6. MySQL stores index timing, content checksum, version, vector count, and any error.
-7. Unpublishing or deletion queues removal of all points matching `content_id`.
+7. Unpublishing or deletion directly removes all points matching `content_id`.
 
 Overlap keeps context at chunk boundaries. Accuracy also depends on retrieval thresholds, source filtering, prompt instructions, and evaluation.
 
@@ -105,7 +104,7 @@ User message
   -> Laravel saves the final answer, citations, usage, cost, and timings
 ```
 
-The first assistant tool is `searchKnowledgeBase(query)`. Laravel executes it, applies authorization and metadata filters, and returns excerpts plus citations. Future `searchWeb(query)` will be rate-limited and clearly label web sources. The model does not have direct infrastructure access.
+The current UI offers two source modes. **RAG** uses `searchKnowledgeBase(query)`: Laravel executes Qdrant retrieval, applies authorization and metadata filters, and returns excerpts plus citations. **Web** uses OpenAI hosted web search and stores URL citations with `source_type: web`. **Both** is intentionally deferred until the system can combine and clearly distinguish conflicting internal and web facts. The model does not have direct infrastructure access.
 
 ## Core records
 
@@ -136,8 +135,8 @@ Full prompt and response logging must be configurable because it may contain sen
 
 ## Delivery plan
 
-1. **Foundation:** Laravel, MySQL, Redis, Qdrant, Reverb, authentication, CI, models, migrations, policies.
-2. **Knowledge base:** content CRUD, publishing, queue-driven vector synchronization, retries, tests.
+1. **Foundation:** Laravel, MySQL, Qdrant, Reverb, authentication, CI, models, migrations, policies.
+2. **Knowledge base:** content CRUD, publishing, direct vector synchronization, tests.
 3. **Grounded chat:** conversation API, retrieval, citations, model generation, React client, streaming.
 4. **Quality:** observability UI, evaluation set, source and authorization tests.
 5. **Web search:** a constrained fallback tool with separate citations.
@@ -147,8 +146,8 @@ Full prompt and response logging must be configurable because it may contain sen
 - Keys live in backend environment variables only.
 - Authorize all conversations, admin actions, routes, and private channels.
 - Validate content and message sizes; rate-limit chat and indexing endpoints.
-- Use idempotent indexing jobs and stable Qdrant point IDs.
-- Retry transient queue failures and expose safe admin retries.
+- Use idempotent direct indexing and stable Qdrant point IDs.
+- Move retries and asynchronous processing to queues only when the MVP requires them.
 - Delete vectors when source content is unpublished or deleted.
 - Treat retrieved documents and web content as untrusted input that cannot override application instructions.
 

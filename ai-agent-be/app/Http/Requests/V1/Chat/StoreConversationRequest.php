@@ -26,6 +26,7 @@ class StoreConversationRequest extends FormRequest
     {
         return [
             'message' => ['required', 'string', 'max:5000'],
+            'mode' => ['sometimes', 'string', 'in:rag,web'],
         ];
     }
 
