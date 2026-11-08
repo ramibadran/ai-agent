@@ -67,6 +67,7 @@ After creating the database and configuring `.env`:
 cd commerce-operations-mcp
 php artisan config:clear
 php artisan migrate
+php artisan db:seed
 php artisan test
 ```
 
