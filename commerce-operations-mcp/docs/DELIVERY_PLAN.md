@@ -15,7 +15,7 @@
 
 ## Stage 2 — Reporting API for verification
 
-- Add internal, authenticated Laravel endpoints for validating report services.
+- Add internal, API-key-protected Laravel endpoints for validating report services.
 - Compare responses with seeded database values.
 - Do not expose a public MCP server yet.
 

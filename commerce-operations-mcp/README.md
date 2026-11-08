@@ -24,6 +24,7 @@ Read the [documentation index](docs/README.md) before extending the project.
 - [Atlas Commerce domain model](docs/COMMERCE_DOMAIN.md)
 - [MCP architecture and security boundary](docs/MCP_ARCHITECTURE.md)
 - [Proposed read-only MCP tool contracts](docs/MCP_TOOL_CONTRACTS.md)
+- [Reporting verification API](docs/API.md)
 - [Staged delivery plan](docs/DELIVERY_PLAN.md)
 
 ## Baseline commands

@@ -27,4 +27,5 @@ Read the documents in this order:
 - [Commerce domain model](COMMERCE_DOMAIN.md)
 - [MCP architecture and boundaries](MCP_ARCHITECTURE.md)
 - [Proposed tool contracts](MCP_TOOL_CONTRACTS.md)
+- [Reporting verification API](API.md)
 - [Delivery plan](DELIVERY_PLAN.md)

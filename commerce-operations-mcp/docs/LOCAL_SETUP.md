@@ -14,6 +14,8 @@ MySQL 8+ or compatible local MySQL service
 
 Redis, queues, Qdrant, and OpenAI credentials are not required for the current foundation stage.
 
+The temporary reporting verification API also requires a local `COMMERCE_API_KEY`. It is a service key for local testing, not the final MCP authentication design.
+
 ## Database
 
 The intended local database name is:
