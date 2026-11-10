@@ -1,6 +1,6 @@
 # Commerce Operations MCP — Design Reference
 
-This Laravel application will become a read-only Model Context Protocol (MCP) server for a fictional ecommerce business, **Atlas Commerce**.
+This Laravel application is a read-only Model Context Protocol (MCP) server for a fictional ecommerce business, **Atlas Commerce**.
 
 It is intentionally separate from `ai-agent-be` and `ai-agent-fe`:
 
@@ -19,7 +19,7 @@ The project is being built in deliberate stages:
 5. Connection from the AI Agent to the MCP server.
 6. Authentication, audit logging, and explicit approval for any future write tools.
 
-No MCP tools are implemented in the foundation stage.
+The initial MCP server exposes five read-only commerce reporting tools. Connection from `ai-agent-be` is the next stage.
 
 Read the documents in this order:
 
@@ -28,4 +28,5 @@ Read the documents in this order:
 - [MCP architecture and boundaries](MCP_ARCHITECTURE.md)
 - [Proposed tool contracts](MCP_TOOL_CONTRACTS.md)
 - [Reporting verification API](API.md)
+- [MCP testing guide](MCP_TESTING.md)
 - [Delivery plan](DELIVERY_PLAN.md)

@@ -12,7 +12,7 @@ Composer
 MySQL 8+ or compatible local MySQL service
 ```
 
-Redis, queues, Qdrant, and OpenAI credentials are not required for the current foundation stage.
+Redis, queues, Qdrant, and OpenAI credentials are not required for this standalone MCP server.
 
 The temporary reporting verification API also requires a local `COMMERCE_API_KEY`. It is a service key for local testing, not the final MCP authentication design.
 
@@ -73,7 +73,7 @@ php artisan db:seed
 php artisan test
 ```
 
-The first migration only creates Laravel's default users, cache, and jobs tables. Commerce tables will be added in the data-model stage.
+The migration and seeder create the commerce reporting tables and fictional Atlas Commerce data used by the API and MCP tools.
 
 ## Run locally
 
@@ -85,3 +85,5 @@ php artisan serve --port=8001
 The application will be available at `http://127.0.0.1:8001`.
 
 Port `8001` avoids colliding with `ai-agent-be`, which normally runs on port `8000`.
+
+The MCP endpoint is `http://127.0.0.1:8001/mcp/atlas-commerce`. See the [MCP testing guide](MCP_TESTING.md) for Inspector, automated-test, and HTTP testing steps.
