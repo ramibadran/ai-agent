@@ -14,7 +14,7 @@ MySQL 8+ or compatible local MySQL service
 
 Redis, queues, Qdrant, and OpenAI credentials are not required for this standalone MCP server.
 
-The temporary reporting verification API also requires a local `COMMERCE_API_KEY`. It is a service key for local testing, not the final MCP authentication design.
+The temporary reporting verification API requires a local `COMMERCE_API_KEY`. The MCP endpoint separately requires `MCP_COMMERCE_TOKEN` as a Bearer token.
 
 ## Database
 
@@ -57,7 +57,11 @@ DB_PORT=3306
 DB_DATABASE=commerce_operations_mcp
 DB_USERNAME=root
 DB_PASSWORD=
+COMMERCE_API_KEY=your_local_reporting_api_key
+MCP_COMMERCE_TOKEN=your_private_mcp_bearer_token
 ```
+
+Use different values for `COMMERCE_API_KEY` and `MCP_COMMERCE_TOKEN`. Neither value belongs in Git.
 
 Set `DB_USERNAME` and `DB_PASSWORD` to match the local MySQL installation. Never commit `.env`.
 
@@ -86,4 +90,4 @@ The application will be available at `http://127.0.0.1:8001`.
 
 Port `8001` avoids colliding with `ai-agent-be`, which normally runs on port `8000`.
 
-The MCP endpoint is `http://127.0.0.1:8001/mcp/atlas-commerce`. See the [MCP testing guide](MCP_TESTING.md) for Inspector, automated-test, and HTTP testing steps.
+The MCP endpoint is `http://127.0.0.1:8001/mcp/atlas-commerce`. It requires `Authorization: Bearer {MCP_COMMERCE_TOKEN}`. See the [MCP testing guide](MCP_TESTING.md) for Inspector, automated-test, and HTTP testing steps.

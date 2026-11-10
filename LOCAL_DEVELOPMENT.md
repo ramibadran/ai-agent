@@ -202,7 +202,11 @@ DB_PORT=3306
 DB_DATABASE=commerce_operations_mcp
 DB_USERNAME=your_mysql_user
 DB_PASSWORD=your_mysql_password
+COMMERCE_API_KEY=your_local_reporting_api_key
+MCP_COMMERCE_TOKEN=your_private_mcp_bearer_token
 ```
+
+Keep the reporting API key and MCP Bearer token separate. Neither value belongs in Git.
 
 Then create its schema and fictional commerce data:
 
@@ -249,6 +253,8 @@ http://localhost:8001/mcp/atlas-commerce
 ```
 
 and click **Connect**.
+
+Before connecting, open **Authentication**, choose Bearer token authentication, and enter the `MCP_COMMERCE_TOKEN` value from `commerce-operations-mcp/.env`.
 
 Open the **Tools** tab, list the tools, then test `get_sales_summary`:
 

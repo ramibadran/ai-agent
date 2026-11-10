@@ -1,0 +1,18 @@
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local environment and credentials. Keep example files versioned.
+**/.env
+**/.env.*
+!**/.env.example
+**/auth.json
+
+# Dependencies and generated application artifacts
+**/node_modules/
+**/vendor/
+**/public/build/
+**/storage/logs/*.log
+**/.phpunit.result.cache

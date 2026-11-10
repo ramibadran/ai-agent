@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\RequireCommerceApiKey;
+use App\Http\Middleware\RequireCommerceMcpToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'commerceApiKey' => RequireCommerceApiKey::class,
+            'commerceMcpToken' => RequireCommerceMcpToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

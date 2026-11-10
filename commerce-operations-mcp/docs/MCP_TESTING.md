@@ -31,6 +31,12 @@ The MCP endpoint is:
 http://127.0.0.1:8001/mcp/atlas-commerce
 ```
 
+Every MCP request requires this header:
+
+```http
+Authorization: Bearer {MCP_COMMERCE_TOKEN}
+```
+
 Keep this terminal running while using the Inspector or `curl`. Stop it with `Control + C`.
 
 ## 3. Use the MCP Inspector
@@ -49,6 +55,8 @@ The Inspector is the easiest manual test. Use it to:
 3. Open a tool to inspect its description and input schema.
 4. Call tools with the test inputs below.
 5. Inspect `structuredContent` and any validation errors.
+
+Open the Inspector's **Authentication** section and select Bearer token authentication. Enter the value of `MCP_COMMERCE_TOKEN` from the local `.env` file. Do not use `COMMERCE_API_KEY`; that key protects the separate reporting verification API.
 
 ## 4. Manual test cases
 
@@ -78,6 +86,7 @@ curl --request POST 'http://127.0.0.1:8001/mcp/atlas-commerce' \
   --header 'Content-Type: application/json' \
   --header 'Accept: application/json, text/event-stream' \
   --header 'MCP-Protocol-Version: 2026-07-28' \
+  --header 'Authorization: Bearer your_private_mcp_bearer_token' \
   --header 'Mcp-Method: tools/list' \
   --data '{
     "jsonrpc": "2.0",
@@ -103,6 +112,7 @@ curl --request POST 'http://127.0.0.1:8001/mcp/atlas-commerce' \
   --header 'Content-Type: application/json' \
   --header 'Accept: application/json, text/event-stream' \
   --header 'MCP-Protocol-Version: 2026-07-28' \
+  --header 'Authorization: Bearer your_private_mcp_bearer_token' \
   --header 'Mcp-Method: tools/call' \
   --header 'Mcp-Name: get_sales_summary' \
   --data '{
