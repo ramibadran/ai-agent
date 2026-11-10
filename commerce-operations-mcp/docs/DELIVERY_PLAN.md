@@ -19,12 +19,13 @@
 - Compare responses with seeded database values.
 - Do not expose a public MCP server yet.
 
-## Stage 3 — Read-only MCP server
+## Stage 3 — Read-only MCP server (current)
 
-- Add MCP transport and tool discovery.
-- Implement the approved read-only tools from `MCP_TOOL_CONTRACTS.md`.
-- Validate inputs and return structured outputs.
-- Log tool calls and errors.
+- Official `laravel/mcp` HTTP transport at `/mcp/atlas-commerce`.
+- Tool discovery for the approved five read-only tools from `MCP_TOOL_CONTRACTS.md`.
+- Input validation and structured outputs.
+- Automated discovery, result, unknown-SKU, and validation tests.
+- Tool-call audit records are intentionally deferred to Stage 5.
 
 ## Stage 4 — AI Agent integration
 

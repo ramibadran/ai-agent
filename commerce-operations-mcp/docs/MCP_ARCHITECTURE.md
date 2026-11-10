@@ -50,6 +50,6 @@ administrative Laravel routes
 
 The server will expose only narrowly scoped, validated read-only tools. Every future tool invocation should be auditable.
 
-## Transport direction
+## Current transport
 
-The learning implementation will use an MCP-compatible HTTP transport. Local development will keep it private on the developer machine. A public remote MCP server will not be created until authentication, authorization, audit logging, and deployment requirements are designed.
+The learning implementation uses the official Laravel MCP HTTP transport at `/mcp/atlas-commerce`. Local development keeps it private on the developer machine. A public remote MCP server will not be created until authentication, authorization, audit logging, and deployment requirements are designed.

@@ -8,13 +8,13 @@ ai-agent-fe                 React chat frontend
 commerce-operations-mcp    Laravel commerce data and future MCP server
 ```
 
-The project uses a dedicated MySQL database named `commerce_operations_mcp`. It does not use Qdrant, Redis, queues, OpenAI, or MCP tools in the current foundation stage.
+The project uses a dedicated MySQL database named `commerce_operations_mcp`. It does not use Qdrant, Redis, queues, or OpenAI.
 
 ## Current stage
 
-Laravel 13 is installed and configured for a separate MySQL database. The business domain and MCP design are documented before implementation begins.
+The project has completed its first read-only MCP-server implementation: commerce reporting services are tested, a normal verification API is available, and five MCP tools expose the same trusted reporting logic.
 
-No commerce models, migrations, reporting API, MCP transport, tool, or AI-agent integration has been implemented yet.
+AI-agent integration is deliberately still pending. The MCP server remains local and read-only.
 
 ## Documentation
 
@@ -49,6 +49,30 @@ find_low_stock_products
 ```
 
 All first-release MCP tools will be read-only.
+
+## Local MCP endpoint
+
+Start Laravel on port `8001`, then configure an MCP-compatible client with this HTTP endpoint:
+
+```text
+http://127.0.0.1:8001/mcp/atlas-commerce
+```
+
+The server uses the official `laravel/mcp` package. It exposes tool discovery and these read-only tools:
+
+```text
+get_sales_summary
+compare_sales_periods
+get_top_products
+get_product_stock
+find_low_stock_products
+```
+
+Use the inspector to discover and call tools during development:
+
+```bash
+php artisan mcp:inspector mcp/atlas-commerce
+```
 
 ---
 
