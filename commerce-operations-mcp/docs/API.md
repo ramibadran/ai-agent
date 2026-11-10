@@ -83,7 +83,7 @@ Returns active products whose latest inventory snapshot is at or below the thres
 
 ```bash
 curl 'http://127.0.0.1:8001/api/v1/reports/sales-summary?start_date=2026-10-01&end_date=2026-10-31' \
-  -H 'X-Commerce-Api-Key: local-commerce-development-key'
+  -H 'X-Commerce-Api-Key: your_local_commerce_api_key'
 ```
 
 Never commit a production service key. The local development key lives only in `.env`, which Git ignores.

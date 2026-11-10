@@ -1,6 +1,6 @@
 # Local Installation and Setup
 
-This guide runs the AI Knowledge Agent backend on macOS for local development.
+This guide runs the AI Knowledge Agent backend for local development.
 
 ## What runs locally
 
@@ -34,7 +34,7 @@ docker --version
 From the backend directory:
 
 ```bash
-cd /Library/WebServer/Documents/ai-agent/ai-agent-be
+cd ai-agent-be
 composer install
 ```
 
@@ -53,7 +53,7 @@ Configure MySQL in `.env`:
 DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=ai_knowledge_agent
+DB_DATABASE=ai_agent
 DB_USERNAME=root
 DB_PASSWORD=your_local_mysql_password
 ```
@@ -61,7 +61,7 @@ DB_PASSWORD=your_local_mysql_password
 Create the database once:
 
 ```bash
-mysql -u root -p -e 'CREATE DATABASE IF NOT EXISTS ai_knowledge_agent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'
+mysql -u root -p -e 'CREATE DATABASE IF NOT EXISTS ai_agent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'
 ```
 
 Run migrations and demo seed data:
@@ -143,7 +143,7 @@ Set matching Laravel values in `.env`:
 ```env
 QDRANT_URL=http://127.0.0.1:6333
 QDRANT_API_KEY=
-QDRANT_COLLECTION=knowledge_chunks
+QDRANT_COLLECTION=ai_agent
 QDRANT_VECTOR_SIZE=1536
 QDRANT_CHUNK_SIZE=800
 QDRANT_CHUNK_OVERLAP=200
@@ -166,8 +166,8 @@ docker stop ai-agent-qdrant
 # View logs
 docker logs -f ai-agent-qdrant
 
-# Open Qdrant's browser dashboard
-open http://127.0.0.1:6333/dashboard
+# Open this URL in a browser to view Qdrant's dashboard
+# http://127.0.0.1:6333/dashboard
 ```
 
 Do not run `docker rm -v ai-agent-qdrant` unless you intentionally want to remove the container and its vector storage.
@@ -196,7 +196,7 @@ Only users where `is_admin = true` can enter the panel.
 3. Create an article with a title and body.
 4. Confirm the article appears in the list and has an indexed timestamp.
 5. Open `http://127.0.0.1:6333/dashboard`.
-6. Confirm the `knowledge_chunks` collection was created and contains points.
+6. Confirm the `ai_agent` collection was created and contains points.
 7. Edit the article body, save it, and confirm its Qdrant point count updates.
 8. Delete the article and confirm its Qdrant points disappear.
 
