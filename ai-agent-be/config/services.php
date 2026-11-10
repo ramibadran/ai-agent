@@ -55,6 +55,12 @@ return [
         'rate_limit_per_minute' => (int) env('CHAT_RATE_LIMIT_PER_MINUTE', 60),
     ],
 
+    'commerce_mcp' => [
+        'url' => env('COMMERCE_MCP_URL'),
+        'token' => env('COMMERCE_MCP_TOKEN'),
+        'timeout_seconds' => (float) env('COMMERCE_MCP_TIMEOUT_SECONDS', 15),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
