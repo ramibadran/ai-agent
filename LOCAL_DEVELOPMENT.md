@@ -290,13 +290,13 @@ Terminal 4  commerce-operations-mcp  php artisan serve --port=8001
 Terminal 5  commerce-operations-mcp  php artisan mcp:inspector mcp/atlas-commerce
 ```
 
-The frontend and the commerce MCP server are not integrated yet. Keep them separate until the agent-backend MCP client integration phase begins.
+The AI Agent backend is the MCP client. In **RAG** mode it can select one or more approved commerce tools when a question needs operational facts. The frontend never calls the MCP server directly.
 
 ## Manual acceptance test cases
 
 Use these cases after the local services are running. They are intentionally split into RAG and MCP because the two systems retrieve facts differently.
 
-### RAG chat test cases
+### Qdrant-only RAG test cases
 
 Use the AI Agent frontend at `http://127.0.0.1:5173`. Select **RAG** mode before asking each question.
 
@@ -314,9 +314,25 @@ Use the AI Agent frontend at `http://127.0.0.1:5173`. Select **RAG** mode before
 
 For every relevant answer, confirm that source cards appear below the answer. Refresh the browser after one or more conversations and confirm history remains visible.
 
+### Multiple MCP tools through the AI Agent
+
+Use the AI Agent frontend in **RAG** mode. This tests tool selection and execution through `ai-agent-be`; it is different from running individual tools directly in the MCP Inspector.
+
+| # | User question | Expected result |
+|---:|---|---|
+| 1 | `For October 2026, summarize Atlas Commerce sales performance and list products with 20 units or less in stock.` | The agent selects both `get_sales_summary` and `find_low_stock_products`, gives one grounded answer using both results, and shows two **MCP tool result** source cards. |
+
+### Combined Qdrant and MCP tools through the AI Agent
+
+Use the AI Agent frontend in **RAG** mode. This verifies that one question can combine vector retrieval with multiple MCP tool calls.
+
+| # | User question | Expected result |
+|---:|---|---|
+| 1 | `Compare Northstar Nexus's 2026 growth plan with Atlas Commerce's October 2026 sales performance, then list products with 20 units or less in stock.` | The agent selects `search_internal_knowledge`, `get_sales_summary`, and `find_low_stock_products`. The answer distinguishes the fictional Northstar plan from Atlas Commerce operational data and shows one internal source card plus two **MCP tool result** source cards. |
+
 ### MCP commerce test cases
 
-Use the MCP Inspector connected to `http://localhost:8001/mcp/atlas-commerce`. These are direct tool tests for the standalone commerce server; the AI Agent does not call these tools yet.
+Use the MCP Inspector connected to `http://localhost:8001/mcp/atlas-commerce`. These are direct tool tests for the standalone commerce server. The AI Agent backend can also call these approved tools through its MCP client in RAG mode.
 
 | # | Business question | Tool and Inspector input | Expected result |
 |---:|---|---|---|

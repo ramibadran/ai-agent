@@ -63,6 +63,7 @@ return [
 
     'internal_agent' => [
         'tools_enabled' => (bool) env('INTERNAL_AGENT_TOOLS_ENABLED', false),
+        'max_tool_calls' => (int) env('INTERNAL_AGENT_MAX_TOOL_CALLS', 5),
     ],
 
     'slack' => [
