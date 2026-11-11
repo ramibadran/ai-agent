@@ -15,6 +15,13 @@ class ChatConversationApiTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.internal_agent.tools_enabled' => false]);
+    }
+
     public function test_it_saves_a_complete_grounded_chat_exchange(): void
     {
         $user = User::factory()->create();

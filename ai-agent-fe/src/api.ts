@@ -3,7 +3,7 @@ const baseUrl = import.meta.env.VITE_API_URL ?? '/api/v1'
 type ApiResponse<T> = { success: boolean; message: string; data: T; authorization?: { token: string } }
 
 export type SearchMode = 'rag' | 'web'
-export type Source = { source_type: 'internal' | 'web'; title: string; score?: number | null; source_url?: string | null; chunk_number?: number | null }
+export type Source = { source_type: 'internal' | 'web' | 'mcp'; title: string; score?: number | null; source_url?: string | null; chunk_number?: number | null; tool_name?: string | null; data?: Record<string, unknown> | null }
 export type Message = { id: number; role: 'user' | 'assistant'; content: string; sources?: Source[] }
 export type Conversation = { id: number; title: string; messages?: Message[]; messages_count?: number }
 

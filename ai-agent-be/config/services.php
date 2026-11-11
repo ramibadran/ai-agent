@@ -61,6 +61,10 @@ return [
         'timeout_seconds' => (float) env('COMMERCE_MCP_TIMEOUT_SECONDS', 15),
     ],
 
+    'internal_agent' => [
+        'tools_enabled' => (bool) env('INTERNAL_AGENT_TOOLS_ENABLED', false),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

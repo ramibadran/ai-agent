@@ -26,6 +26,8 @@ class ConversationMessageResource extends JsonResource
                     'title' => $source['title'] ?? 'Unknown source',
                     'source_url' => $source['source_url'] ?? null,
                     'score' => $source['score'] ?? null,
+                    'tool_name' => $source['tool_name'] ?? null,
+                    'data' => $source['data'] ?? null,
                 ])
                 ->all()),
             'observability' => $this->when($this->role === 'assistant', fn (): array => [

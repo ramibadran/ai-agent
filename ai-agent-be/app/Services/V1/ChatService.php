@@ -14,6 +14,7 @@ class ChatService
 {
     public function __construct(
         private readonly KnowledgeRetriever $knowledgeRetriever,
+        private readonly InternalAgentToolRouter $internalAgentToolRouter,
         private readonly AnswerGenerator $answerGenerator,
     ) {}
 
@@ -66,9 +67,15 @@ class ChatService
                 );
                 $sources = $answer['sources'];
             } else {
-                $sources = $this->knowledgeRetriever->retrieve($message);
+                $agentResult = config('services.internal_agent.tools_enabled')
+                    ? $this->internalAgentToolRouter->retrieve($message)
+                    : [
+                        'context' => $this->knowledgeRetriever->retrieve($message),
+                        'sources' => [],
+                    ];
+                $context = $agentResult['context'];
 
-                if ($sources === []) {
+                if ($context === []) {
                     $assistantMessage = $conversation->messages()->create([
                         'role' => 'assistant',
                         'content' => 'I could not find this information in the available knowledge base.',
@@ -81,12 +88,12 @@ class ChatService
                     return compact('conversation', 'userMessage', 'assistantMessage');
                 }
 
-                $sources = collect($sources)
-                    ->map(fn (array $source): array => ['source_type' => 'internal'] + $source)
-                    ->all();
+                $sources = $agentResult['sources'] === []
+                    ? collect($context)->map(fn (array $source): array => ['source_type' => 'internal'] + $source)->all()
+                    : $agentResult['sources'];
                 $answer = $this->answerGenerator->streamGenerate(
                     $message,
-                    $sources,
+                    $context,
                     $history,
                     fn (string $delta): mixed => broadcast(new AssistantTextDelta($conversation->id, $delta)),
                 );
